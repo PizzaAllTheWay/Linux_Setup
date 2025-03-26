@@ -1,3 +1,7 @@
+#!/bin/bash
+
+# Handy aliases for terminal to make life better :)
+
 # Superior version of "ls -la" command
 : '
 NOTE: To enable icons in eza:
