@@ -56,11 +56,29 @@ diag_lines+=("$(echo -e "\033[1;32m\033[1mCPU:       \033[0m$cpu_model")")
 diag_lines+=("$(echo -e "\033[1;32m\033[1mGPU:       \033[0m$gpu_model")")
 diag_lines+=("$(echo -e "\033[1;32m\033[1mMemory:    \033[0m$mem_info")")
 
+# Add an empty line
+diag_lines+=("$(echo -e "")")
+
+# Define a rainbow palette with smooth RGB transitions
+rainbow=(
+  196 202 208 214 220 226   # Red to Yellow
+  190 154 118 82 46         # Yellow to Green
+  47 48 49 50 51            # Green to Cyan
+  45 39 33 27 21            # Cyan to Blue
+  57 93 129 165 201         # Blue to Magenta
+  207 213 219 225           # Magenta to Pink/White (completes 30 colors)
+)
+palette_line=""
+for code in "${rainbow[@]}"; do
+    palette_line+=$(echo -ne "\033[38;5;${code}m█\033[0m")
+done
+diag_lines+=("$palette_line")
+
 # Calculate max lines
 max_lines=${#pixelart_lines[@]}
 [ ${#diag_lines[@]} -gt $max_lines ] && max_lines=${#diag_lines[@]}
 
-left_width=5
+left_width=30
 
 # Print side-by-side with proper padding
 for ((i = 0; i < max_lines; i++)); do
