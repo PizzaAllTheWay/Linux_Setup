@@ -1,12 +1,20 @@
 #!/bin/bash
 
+# Check if the window is big enough to have pixel art on it
+# If not just skip this file
+min_width=140
+cols=$(tput cols)
+if [ "$cols" -lt "$min_width" ]; then
+    return 0
+fi
+
 # Function to strip ANSI escape sequences for length calculations
 strip_ansi() {
     sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
 }
 
 # Select a random .txt file from "Linux_Setup/pixelart" folder
-folder="Linux_Setup/pixelart"
+folder="$HOME/Linux_Setup/pixelart/"
 file=$(find "$folder" -type f -name "*.txt" | shuf -n 1)
 
 # Capture pixel art lines
