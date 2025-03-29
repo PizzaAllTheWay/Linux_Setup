@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Wait until terminal is resized properly
+sleep 0.01 # 10 ms
+
 # Check if the window is big enough to have pixel art on it
 # If not just skip this file
 min_width=140
