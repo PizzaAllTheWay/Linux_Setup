@@ -41,3 +41,9 @@ Graphical directory structure listing:
 ```
 $ tree
 ```
+
+Hacker man:
+```
+$ sudo apt install hollywood
+$ hollywood
+```
