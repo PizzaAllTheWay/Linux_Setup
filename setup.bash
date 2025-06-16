@@ -11,12 +11,11 @@ source /opt/ros/jazzy/setup.bash
 # Nodes must have the same domain ID to communicate
 export ROS_DOMAIN_ID=0 
 
-# 0: Allows ROS 2 to communicate with other devices on the network
-# 1: Restricts ROS 2 communication to the local machine only
-export ROS_LOCALHOST_ONLY=0
-
 # Enables automatic discovery of all ROS 2 nodes 
-# within the same subnet, allowing multi-device communication
+# OFF: disables discovery (not recommended)
+# LOCALHOST: limits to localhost
+# SUBNET: communicates with all devices on your subnet
+# LINK: limits to same network link only
 export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
 # ROS 2 setup (STOP) ==================================================
 
