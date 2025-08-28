@@ -9,32 +9,28 @@ case $- in
 esac
 
 # Basic settings for bash
-if [ -f ~/Linux_Setup/basics.bash ]; then
-    . ~/Linux_Setup/basics.bash
+if [ -f ~/Linux_Setup/scripts/basics.bash ]; then
+    . ~/Linux_Setup/scripts/basics.bash
 fi
 
 # Alias definitions and setup
-if [ -f ~/Linux_Setup/aliases.bash ]; then
-    . ~/Linux_Setup/aliases.bash
+if [ -f ~/Linux_Setup/scripts/aliases.bash ]; then
+    . ~/Linux_Setup/scripts/aliases.bash
 fi
 
 # Custom bash setup for my PC
-if [ -f ~/Linux_Setup/setup.bash ]; then
-    . ~/Linux_Setup/setup.bash
+if [ -f ~/Linux_Setup/scripts/setup.bash ]; then
+    . ~/Linux_Setup/scripts/setup.bash
 fi
 
 # Just some fun for the coolness factor B)
-if [ -f ~/Linux_Setup/fun.bash ]; then
-    . ~/Linux_Setup/fun.bash
+# Main PC
+if [ -f ~/Linux_Setup/scripts/diagnostics/main.bash ]; then
+    . ~/Linux_Setup/scripts/diagnostics/main.bash
 fi
-
-
-
-
-
-
-
-
-
+# Babylon Server
+# if [ -f ~/Linux_Setup/scripts/diagnostics/babylon.bash ]; then
+#     . ~/Linux_Setup/scripts/diagnostics/babylon.bash
+# fi
 
 

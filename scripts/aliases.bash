@@ -34,3 +34,18 @@ alias bat='batcat --paging=never'
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert "Wakey Wakey"
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Just a handy ssh to different static IPs
+ssh() {
+  case "$1" in
+    babylon)
+      command ssh martynas@babylon.tailcb6f53.ts.net
+      ;;
+    martynas)
+      command ssh martynas@martynas-pc.tailcb6f53.ts.net
+      ;;
+    *)
+      command ssh "$@"
+      ;;
+  esac
+}

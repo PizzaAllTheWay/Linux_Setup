@@ -1,0 +1,1 @@
+\033[38;5;081m - We can only see a short distance ahead, but there is plenty that needs to be done

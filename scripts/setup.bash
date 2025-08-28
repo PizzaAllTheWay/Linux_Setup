@@ -9,7 +9,7 @@ source /opt/ros/jazzy/setup.bash
 
 # Defines the ROS 2 communication domain (0 is default).
 # Nodes must have the same domain ID to communicate
-export ROS_DOMAIN_ID=0 
+export ROS_DOMAIN_ID=21
 
 # Enables automatic discovery of all ROS 2 nodes 
 # OFF: disables discovery (not recommended)

@@ -16,8 +16,8 @@ strip_ansi() {
     sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
 }
 
-# Select a random .txt file from "Linux_Setup/pixelart" folder
-folder="$HOME/Linux_Setup/pixelart/"
+# Select a random .txt file from "Linux_Setup/fun/pixelart" folder
+folder="$HOME/Linux_Setup/fun/pixelart/"
 file=$(find "$folder" -type f -name "*.txt" | shuf -n 1)
 
 # Capture pixel art lines
