@@ -4,6 +4,9 @@
 # --- 0) Small delay to let terminal settle ---
 sleep 0.01
 
+# Clear any server info prior to this as its not relevant
+clear
+
 # --- 1) Require wide terminal; exit cleanly whether sourced or executed ---
 min_width=140
 cols=$(tput cols)
@@ -36,6 +39,27 @@ grad_tc() {
     }'
 }
 
+# Read max CPU/SoC temperature (lm-sensors or /sys fallback)
+get_temp() {
+  if command -v sensors >/dev/null 2>&1; then
+    t=$(sensors 2>/dev/null | awk -F'[+° ]' '/°C/{print $3}' | sort -nr | head -1)
+    [ -n "$t" ] && { printf "%.1f °C" "$t"; return; }
+  fi
+  # sysfs fallback
+  temps=()
+  for z in /sys/class/thermal/thermal_zone*/temp; do
+    [ -r "$z" ] || continue
+    v=$(cat "$z" 2>/dev/null)
+    [[ "$v" =~ ^[0-9]+$ ]] && temps+=("$v")
+  done
+  if [ ${#temps[@]} -gt 0 ]; then
+    max=$(printf '%s\n' "${temps[@]}" | sort -nr | head -1)
+    awk -v t="$max" 'BEGIN{printf "%.1f °C", t/1000}'
+  else
+    printf "N/A"
+  fi
+}
+
 # --- 3) Babylon banner (NO stray chars/blank line at top) ---
 BABYLON_BANNER=$(cat <<'ART'
   /$$$$$$$   /$$$$$$  /$$$$$$$  /$$     /$$ /$$        /$$$$$$  /$$   /$$
@@ -66,12 +90,21 @@ fi
 # --- 5) Diagnostics block ---
 diagnostics_info=()
 diagnostics_info+=("$(echo -e "\033[1;36m#==========# System Diagnostics #==========#\033[0m")")
-diagnostics_info+=("$(echo -e "\033[1;31mQuote:     \033[0m$(basename "${file:-unknown}" .txt)")")
+diagnostics_info+=("$(echo -e "\033[1;31mQuote:      \033[0m$(basename "${file:-unknown}" .txt)")")
 
-# System + uptime
-diagnostics_info+=("$(echo -e "\033[1;34mUptime:    \033[0m$(uptime -p)")")
+# System + uptime + (users/last/procs folded in)
+u_pretty=$(uptime -p)
 distro=$(grep '^PRETTY_NAME=' /etc/os-release | cut -d '=' -f2 | tr -d '"')
-diagnostics_info+=("$(echo -e "\033[1;34mSystem:    \033[0mKernel: $(uname -s) $(uname -r) | Distro: $distro")")
+last_login=$(last -n 1 -F -R "$USER" 2>/dev/null | head -1 | tr -s ' ')
+[ -z "$last_login" ] && last_login=$(lastlog -u "$USER" 2>/dev/null | tail -1 | tr -s ' ')
+who_count=$(who | wc -l)
+who_list=$(who | awk '{h=$5; gsub(/[()]/,"",h); printf "%s%s%s", $1, (h!=""?"@":""), h; if (NR<NF) printf ", "}' | paste -sd ", " -)
+[ -n "$who_list" ] && users_line="$who_count ($who_list)" || users_line="$who_count"
+proc_count=$(ps -e --no-headers | wc -l)
+diagnostics_info+=("$(echo -e "\033[1;34mUptime:     \033[0m$u_pretty | Processes: $proc_count")")
+diagnostics_info+=("$(echo -e "\033[1;34mSystem:     \033[0mKernel: $(uname -s) $(uname -r) | Distro: $distro")")
+diagnostics_info+=("$(echo -e "\033[1;34mUsers:      \033[0m$users_line")")
+diagnostics_info+=("$(echo -e "\033[1;34mLast Login: \033[0m$last_login")")
 
 # Network
 interface=$(ip route | awk "/default/{print \$5; exit}")
@@ -79,32 +112,33 @@ ip_addr=$(ip -4 addr show "$interface" 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.
 gateway=$(ip route | awk "/default/{print \$3; exit}")
 mac_addr=$(cat /sys/class/net/"$interface"/address 2>/dev/null)
 dns_servers=$(grep -h ^nameserver /etc/resolv.conf | awk '{print $2}' | paste -sd "," -)
-diagnostics_info+=("$(echo -e "\033[1;35mNetwork:   \033[0mIF: $interface | IP: $ip_addr | GW: $gateway | MAC: $mac_addr | DNS: $dns_servers")")
+diagnostics_info+=("$(echo -e "\033[1;35mNetwork:    \033[0mIF: $interface | IP: $ip_addr | GW: $gateway | MAC: $mac_addr | DNS: $dns_servers")")
 
 # CPU/GPU
 cpu_model=$(lscpu | grep 'Model name' | sed 's/Model name:\s*//')
 gpu_model=$(lspci | grep -i 'vga\|3d\|display' | head -1 | cut -d ':' -f3- | sed 's/^ *//')
-diagnostics_info+=("$(echo -e "\033[1;32m\033[1mCPU:       \033[0m$cpu_model")")
-diagnostics_info+=("$(echo -e "\033[1;32m\033[1mGPU:       \033[0m$gpu_model")")
+diagnostics_info+=("$(echo -e "\033[1;32m\033[1mCPU:        \033[0m$cpu_model")")
+diagnostics_info+=("$(echo -e "\033[1;32m\033[1mGPU:        \033[0m$gpu_model")")
 
 # Battery (if present)
 battery=$(upower -e 2>/dev/null | grep BAT | head -n1)
 if [ -n "$battery" ]; then
   battery_info=$(upower -i "$battery" | grep -E 'state|percentage' | xargs)
-  diagnostics_info+=("$(echo -e "\033[1;33mBattery:   \033[0m$battery_info")")
+  diagnostics_info+=("$(echo -e "\033[1;33mBattery:    \033[0m$battery_info")")
 fi
 
-# Load + memory + NIC counters
+# Load + memory + NIC counters (+ Temp here)
 cpu_usage=$(top -bn1 | awk -F'[, ]+' '/Cpu\(s\)/{print 100-$8"%"}')
 mem_usage=$(free -h | awk '/Mem:/ {print $3 " / " $2}')
 mem_percent=$(free | awk '/Mem:/ {printf("%.2f%%", $3/$2 * 100)}')
 rx_bytes=$(cat /sys/class/net/"$interface"/statistics/rx_bytes 2>/dev/null | numfmt --to=iec)
 tx_bytes=$(cat /sys/class/net/"$interface"/statistics/tx_bytes 2>/dev/null | numfmt --to=iec)
-diagnostics_info+=("$(echo -e "\033[1;33mLoad:      \033[0mCPU: $cpu_usage | Memory: $mem_usage ($mem_percent) | Net: RX: $rx_bytes, TX: $tx_bytes")")
+temp_now=$(get_temp)
+diagnostics_info+=("$(echo -e "\033[1;33mLoad:       \033[0mCPU: $cpu_usage | Temp: $temp_now | Memory: $mem_usage ($mem_percent) | Net: RX: $rx_bytes, TX: $tx_bytes")")
 diagnostics_info+=("")
 
 # --- 6) Render: Banner (gradient) → Quote (raw colors) → Diagnostics ---
-printf "%s" "$BABYLON_BANNER" | grad_tc
+printf "%s\n" "$BABYLON_BANNER" | grad_tc
 echo ""
 for line in "${quote_lines[@]}"; do printf '%b\n' "$line"; done
 echo ""
