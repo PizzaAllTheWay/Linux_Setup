@@ -101,8 +101,8 @@ who_count=$(who | wc -l)
 who_list=$(who | awk '{h=$5; gsub(/[()]/,"",h); printf "%s%s%s", $1, (h!=""?"@":""), h; if (NR<NF) printf ", "}' | paste -sd ", " -)
 [ -n "$who_list" ] && users_line="$who_count ($who_list)" || users_line="$who_count"
 proc_count=$(ps -e --no-headers | wc -l)
-diagnostics_info+=("$(echo -e "\033[1;34mUptime:     \033[0m$u_pretty | Processes: $proc_count")")
-diagnostics_info+=("$(echo -e "\033[1;34mSystem:     \033[0mKernel: $(uname -s) $(uname -r) | Distro: $distro")")
+diagnostics_info+=("$(echo -e "\033[1;34mUptime:     \033[0m$u_pretty")")
+diagnostics_info+=("$(echo -e "\033[1;34mSystem:     \033[0mKernel: $(uname -s) $(uname -r) | Distro: $distro | Processes: $proc_count")")
 diagnostics_info+=("$(echo -e "\033[1;34mUsers:      \033[0m$users_line")")
 diagnostics_info+=("$(echo -e "\033[1;34mLast Login: \033[0m$last_login")")
 
