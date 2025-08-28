@@ -135,7 +135,6 @@ rx_bytes=$(cat /sys/class/net/"$interface"/statistics/rx_bytes 2>/dev/null | num
 tx_bytes=$(cat /sys/class/net/"$interface"/statistics/tx_bytes 2>/dev/null | numfmt --to=iec)
 temp_now=$(get_temp)
 diagnostics_info+=("$(echo -e "\033[1;33mLoad:       \033[0mCPU: $cpu_usage | Temp: $temp_now | Memory: $mem_usage ($mem_percent) | Net: RX: $rx_bytes, TX: $tx_bytes")")
-diagnostics_info+=("")
 
 # --- 6) Render: Banner (gradient) → Quote (raw colors) → Diagnostics ---
 printf "%s\n" "$BABYLON_BANNER" | grad_tc
