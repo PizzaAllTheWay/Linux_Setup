@@ -8,6 +8,16 @@ case $- in
       *) return;;
 esac
 
+# Just some fun for the coolness factor B)
+# Main PC
+if [ -f ~/Linux_Setup/scripts/diagnostics/main.bash ]; then
+    . ~/Linux_Setup/scripts/diagnostics/main.bash
+fi
+# Babylon Server
+# if [ -f ~/Linux_Setup/scripts/diagnostics/babylon.bash ]; then
+#     . ~/Linux_Setup/scripts/diagnostics/babylon.bash
+# fi
+
 # Basic settings for bash
 if [ -f ~/Linux_Setup/scripts/basics.bash ]; then
     . ~/Linux_Setup/scripts/basics.bash
@@ -22,15 +32,5 @@ fi
 if [ -f ~/Linux_Setup/scripts/setup.bash ]; then
     . ~/Linux_Setup/scripts/setup.bash
 fi
-
-# Just some fun for the coolness factor B)
-# Main PC
-if [ -f ~/Linux_Setup/scripts/diagnostics/main.bash ]; then
-    . ~/Linux_Setup/scripts/diagnostics/main.bash
-fi
-# Babylon Server
-# if [ -f ~/Linux_Setup/scripts/diagnostics/babylon.bash ]; then
-#     . ~/Linux_Setup/scripts/diagnostics/babylon.bash
-# fi
 
 
