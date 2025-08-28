@@ -42,6 +42,11 @@ Graphical directory structure listing:
 $ tree
 ```
 
+Terminal instance that persists even after disconnect:
+```
+$ tmux
+```
+
 Hacker man:
 ```
 $ sudo apt install hollywood
