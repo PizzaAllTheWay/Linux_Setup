@@ -39,7 +39,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 ssh() {
   case "$1" in
     babylon)
-      command ssh babylon@babylon.tailcb6f53.ts.net
+      command ssh babylon@babylon-server.tailcb6f53.ts.net
       ;;
     martynas)
       command ssh martynas@martynas-pc.tailcb6f53.ts.net
