@@ -49,3 +49,12 @@ ssh() {
       ;;
   esac
 }
+
+# RDP (Remote Desktop Protocol) to work PC
+# NOTE: Requires Nordic internal VPN for this to work (Global Protect VPN)
+rdpnordic() {
+  RDP_USER="martynas.smilingis@nordicsemi.no"
+  RDP_DOMAIN="NVLSI"
+  RDP_HOST="10.250.15.112" # Internal IP of my machine after connecting to VPN (Global Protect VPN)
+  rdesktop -u "$RDP_USER" -d "$RDP_DOMAIN" -g 90% -k no -p - "$RDP_HOST"
+}
