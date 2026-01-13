@@ -56,5 +56,5 @@ rdpnordic() {
   RDP_USER="masm"
   RDP_DOMAIN="NVLSI"
   RDP_HOST="10.250.15.112" # Internal IP of my machine after connecting to VPN (Global Protect VPN)
-  rdesktop -u "$RDP_USER" -d "$RDP_DOMAIN" -g 90% -k no -p - "$RDP_HOST"
+  rdesktop -u "$RDP_USER" -d "$RDP_DOMAIN" -g 90% -a 16 -k no -p - "$RDP_HOST"
 }
