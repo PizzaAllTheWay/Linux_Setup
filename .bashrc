@@ -29,8 +29,11 @@ if [ -f ~/Linux_Setup/scripts/aliases.bash ]; then
 fi
 
 # Custom bash setup for my PC
-if [ -f ~/Linux_Setup/scripts/setup.bash ]; then
-    . ~/Linux_Setup/scripts/setup.bash
+if [ -f ~/Linux_Setup/scripts/setup_my_pc.bash ]; then
+    . ~/Linux_Setup/scripts/setup_my_pc.bash
 fi
 
-
+# Custom bash setup for Nordic Semiconductor PC
+if [ -f ~/Linux_Setup/scripts/setup_nordic_pc.bash ]; then
+    . ~/Linux_Setup/scripts/setup_nordic_pc.bash
+fi

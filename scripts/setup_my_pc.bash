@@ -11,7 +11,7 @@ source /opt/ros/jazzy/setup.bash
 # Nodes must have the same domain ID to communicate
 export ROS_DOMAIN_ID=0
 
-# Enables automatic discovery of all ROS 2 nodes 
+# Enables automatic discovery of all ROS 2 nodes
 # OFF: disables discovery (not recommended)
 # LOCALHOST: limits to localhost
 # SUBNET: communicates with all devices on your subnet
@@ -29,3 +29,30 @@ export PATH=$PATH:/usr/local/go/bin
 # D Language Setup
 export PATH=~/dlang/dmd-2.109.1/linux/bin64:$PATH
 
+
+
+# Just a handy ssh to different static IPs
+ssh() {
+  case "$1" in
+    babylon)
+      command ssh babylon@babylon-server.tailcb6f53.ts.net
+      ;;
+    martynas)
+      command ssh martynas@martynas-pc.tailcb6f53.ts.net
+      ;;
+    *)
+      command ssh "$@"
+      ;;
+  esac
+}
+
+
+
+# RDP (Remote Desktop Protocol) to work PC
+# NOTE: Requires Nordic internal VPN for this to work (Global Protect VPN)
+rdpnordic() {
+  RDP_USER="masm"
+  RDP_DOMAIN="NVLSI"
+  RDP_HOST="10.250.15.112" # Internal IP of my machine after connecting to VPN (Global Protect VPN)
+  rdesktop -u "$RDP_USER" -d "$RDP_DOMAIN" -g 90% -a 16 -k no -p - "$RDP_HOST"
+}
