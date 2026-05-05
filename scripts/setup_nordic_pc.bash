@@ -3,21 +3,27 @@
 # Custom setup
 # For stationary PC at Nordic Semiconductors
 
-# nRF Connect SDK Toolchain
-NCS_TOOLCHAIN="$HOME/ncs/toolchains/43683a87ea"
-if [ -f "$NCS_TOOLCHAIN/environment.json" ]; then
-    eval "$(python3 -c "
+# nRF Connect SDK Toolchain, always auto-loaded
+# Picks the latest installed toolchain automatically
+NCS_TOOLCHAIN=$(ls -dt "$HOME"/ncs/toolchains/*/ 2>/dev/null | head -n1)
+NCS_TOOLCHAIN="${NCS_TOOLCHAIN%/}"
+if [ -n "$NCS_TOOLCHAIN" ] && [ -f "$NCS_TOOLCHAIN/environment.json" ]; then
+    eval "$(NCS_TC="$NCS_TOOLCHAIN" python3 -c "
 import json, os
-tc = '$NCS_TOOLCHAIN'
+tc = os.environ['NCS_TC']
 cfg = json.load(open(f'{tc}/environment.json'))
+SKIP = {'LD_LIBRARY_PATH'}
 for v in cfg['env_vars']:
+    key = v['key']
+    if key in SKIP:
+        continue
     if v['type'] == 'string':
-        print(f'export {v[\"key\"]}=\"{v[\"value\"]}\"')
+        print(f'export {key}=\"{v[\"value\"]}\"')
     elif v['type'] == 'relative_paths':
         paths = ':'.join(f'{tc}/{p}' for p in v['values'])
         if v.get('existing_value_treatment') == 'prepend_to':
-            print(f'export {v[\"key\"]}=\"{paths}:\${v[\"key\"]}\"')
+            print(f'export {key}=\"{paths}:\${key}\"')
         else:
-            print(f'export {v[\"key\"]}=\"{paths}\"')
+            print(f'export {key}=\"{paths}\"')
 ")"
 fi
