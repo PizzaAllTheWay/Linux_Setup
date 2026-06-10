@@ -5,8 +5,8 @@
 
 # nRF Connect SDK Toolchain, always auto-loaded
 # Picks the latest installed toolchain automatically
-NCS_TOOLCHAIN=$(ls -dt "$HOME"/ncs/toolchains/*/ 2>/dev/null | head -n1)
-NCS_TOOLCHAIN="${NCS_TOOLCHAIN%/}"
+NCS_TOOLCHAIN=$(ls -dt "$HOME"/ncs/toolchains/*/environment.json 2>/dev/null | head -n1)
+NCS_TOOLCHAIN="${NCS_TOOLCHAIN%/environment.json}"
 if [ -n "$NCS_TOOLCHAIN" ] && [ -f "$NCS_TOOLCHAIN/environment.json" ]; then
     eval "$(NCS_TC="$NCS_TOOLCHAIN" python3 -c "
 import json, os
