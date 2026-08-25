@@ -29,7 +29,7 @@ $ sleep 5; alert "Helloooo"
 # Good commands 
 Task manager:
 ```
-$ htop
+$ btop
 ```
 
 Disk usage analyzer:
