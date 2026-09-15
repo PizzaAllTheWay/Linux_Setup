@@ -45,22 +45,3 @@ ssh() {
       ;;
   esac
 }
-
-
-
-# Remote connect (RDP)
-# NOTE: VPN must be ON (GlobalProtect)
-remote_connect() {
-  case "$1" in
-    nordic-pc)
-      xfreerdp /u:masm /v:TURING-PC.nordicsemi.no \
-      /dynamic-resolution +clipboard /network:lan \
-      /gfx +gfx-progressive +gfx-thin-client \
-      /kbd:0x00000414 \
-      /compression /jpeg /bpp:16 -wallpaper -themes -menu-anims
-      ;;
-    *)
-      echo "Usage: remote_connect nordic-pc"
-      ;;
-  esac
-}

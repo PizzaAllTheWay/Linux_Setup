@@ -46,28 +46,38 @@ distro=$(grep '^PRETTY_NAME=' /etc/os-release | cut -d '=' -f2 | tr -d '"')
 diag_lines+=("$(echo -e "\033[1;34mSystem:    \033[0mKernel: $(uname -s) $(uname -r) | Distro: $distro")")
 
 # Network
-default_route=$(ip route show default | head -n1)
-read -r _ _ gateway _ interface _ <<< "$default_route"
-ip_addr=$(ip -4 -o addr show dev "$interface" | awk '{split($4,a,"/"); print a[1]}')
-mac_addr=$(< /sys/class/net/"$interface"/address)
+eval "$(ip -4 route show default | awk '/default/ {print "gateway="$3" interface="$5; exit}')"
+ip_addr=$(ip -4 -o addr show dev "$interface" 2>/dev/null | awk '{split($4,a,"/"); print a[1]; exit}')
+mac_addr=$(< "/sys/class/net/$interface/address")
 dns_servers=$(awk '/^nameserver/{printf "%s%s", sep, $2; sep=","}' /etc/resolv.conf)
 diag_lines+=("$(echo -e "\033[1;35mNetwork:   \033[0mIF: $interface | IP: $ip_addr | GW: $gateway | MAC: $mac_addr | DNS: $dns_servers")")
 
-# CPU and GPU Specs 
-cpu_model=$(lscpu | grep 'Model name' | sed 's/Model name:\s*//')
-gpu_model=$(lspci | grep -i 'vga\|3d\|display' | head -1 | cut -d ':' -f3- | sed 's/^ *//')
+# CPU and GPU Specs
+cpu_model=$(awk -F: '/model name/{sub(/^ +/,"",$2); print $2; exit}' /proc/cpuinfo)
+gpu_models=()
+for uevent in /sys/class/drm/card*/device/uevent; do
+    [[ -f "$uevent" ]] || continue
+    pci_slot=$(awk -F= '/PCI_SLOT_NAME/{print $2; exit}' "$uevent")
+    [[ -n "$pci_slot" ]] || continue
+    gpu_name=$(lspci -s "${pci_slot#0000:}" 2>/dev/null | head -1 | cut -d: -f3- | sed 's/^ *//')
+    [[ -n "$gpu_name" ]] && gpu_models+=("$gpu_name")
+done
+if ((${#gpu_models[@]})); then
+    gpu_model=$(printf ' | %s' "${gpu_models[@]}")
+    gpu_model=${gpu_model# | }
+fi
 diag_lines+=("$(echo -e "\033[1;32m\033[1mCPU:       \033[0m$cpu_model")")
 diag_lines+=("$(echo -e "\033[1;32m\033[1mGPU:       \033[0m$gpu_model")")
 
 # Battery
-battery=$(upower -e | grep BAT | head -n1)
-if [ -n "$battery" ]; then
-    battery_info=$(upower -i "$battery" | grep -E 'state|percentage' | xargs)
+if [[ -r /sys/class/power_supply/BAT0/capacity ]]; then
+    battery_info="$(< /sys/class/power_supply/BAT0/status) $(< /sys/class/power_supply/BAT0/capacity)%"
     diag_lines+=("$(echo -e "\033[1;33mBattery:   \033[0m$battery_info")")
 fi
 
 # Combined CPU load, Memory, and Net load in one line
-cpu_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1 "%"}')
+read -r cpu_load1 _ _ _ < /proc/loadavg
+cpu_usage="load ${cpu_load1}"
 mem_usage=$(free -h | awk '/Mem:/ {print $3 " / " $2}')
 mem_percent=$(free | awk '/Mem:/ {printf("%.2f%%", $3/$2 * 100)}')
 rx_bytes=$(cat /sys/class/net/"$interface"/statistics/rx_bytes | numfmt --to=iec)
