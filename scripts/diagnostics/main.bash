@@ -46,11 +46,11 @@ distro=$(grep '^PRETTY_NAME=' /etc/os-release | cut -d '=' -f2 | tr -d '"')
 diag_lines+=("$(echo -e "\033[1;34mSystem:    \033[0mKernel: $(uname -s) $(uname -r) | Distro: $distro")")
 
 # Network
-interface=$(ip route | grep default | awk '{print $5}')
-ip_addr=$(ip -4 addr show "$interface" | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-gateway=$(ip route | grep default | awk '{print $3}')
-mac_addr=$(cat /sys/class/net/"$interface"/address)
-dns_servers=$(grep nameserver /etc/resolv.conf | awk '{print $2}' | paste -sd "," -)
+default_route=$(ip route show default | head -n1)
+read -r _ _ gateway _ interface _ <<< "$default_route"
+ip_addr=$(ip -4 -o addr show dev "$interface" | awk '{split($4,a,"/"); print a[1]}')
+mac_addr=$(< /sys/class/net/"$interface"/address)
+dns_servers=$(awk '/^nameserver/{printf "%s%s", sep, $2; sep=","}' /etc/resolv.conf)
 diag_lines+=("$(echo -e "\033[1;35mNetwork:   \033[0mIF: $interface | IP: $ip_addr | GW: $gateway | MAC: $mac_addr | DNS: $dns_servers")")
 
 # CPU and GPU Specs 
