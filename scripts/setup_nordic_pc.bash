@@ -79,10 +79,12 @@ remote_connect() {
     nordic-pc)
       ip=$(getent ahostsv4 masm-linux.nordicsemi.no | awk '{print $1}' | head -1)
       xfreerdp /u:masm /v:"$ip" \
-      /dynamic-resolution +clipboard /network:lan \
-      /gfx +gfx-progressive +gfx-thin-client \
-      /kbd:0x00000414 \
-      /compression /jpeg /bpp:16 -wallpaper -themes -menu-anims
+        /f +clipboard \
+        /network:lan +async-update +async-input \
+        /gfx +gfx-progressive +gfx-thin-client \
+        /gdi:hw /kbd:0x00000414 \
+        /compression-level:0 /bpp:16 /audio-mode:0 \
+        -wallpaper -themes -menu-anims -fonts
       ;;
     *)
       echo "Usage: remote_connect nordic-pc"
