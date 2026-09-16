@@ -38,7 +38,7 @@ export PATH="$HOME/.local/bin:$PATH"
 ssh() {
   case "$1" in
     nordic-pc)
-      ip=$(ping -c1 -W3 masm-linux.nordicsemi.no | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+      ip=$(getent ahostsv4 masm-linux.nordicsemi.no | awk '{print $1}' | head -1)
       if [[ -z "$ip" ]]; then
         echo "Couldn't reach masm-linux — you're probably not on VPN. Try reconnecting to network or VPN."
         return 1
@@ -53,11 +53,32 @@ ssh() {
 }
 
 # Remote connect (RDP)
-# NOTE: VPN must be ON (GlobalProtect)
+# NOTE: VPN must be ON (GlobalProtect) on the machine you connect FROM.
+#
+# One-time setup on the OFFICE PC (masm-linux — the machine you connect TO):
+#   1. sudo apt install xrdp xorgxrdp dbus-x11
+#   2. sudo ufw allow 3389/tcp          # if ufw is active
+#   3. sudo adduser xrdp ssl-cert
+#   4. sudo systemctl enable --now xrdp
+#   5. Create ~/.xsession (fixes black screen on Ubuntu + GNOME):
+#        #!/bin/sh
+#        export GNOME_SHELL_SESSION_MODE=ubuntu
+#        export XDG_CURRENT_DESKTOP=ubuntu:GNOME
+#        export XDG_SESSION_TYPE=x11
+#        unset DBUS_SESSION_BUS_ADDRESS
+#        unset XDG_RUNTIME_DIR
+#        exec dbus-run-session -- gnome-session
+#      chmod +x ~/.xsession
+#   6. sudo systemctl restart xrdp
+#
+# On THIS machine (client): sudo apt install freerdp2-x11
+# Then run: remote_connect nordic-pc
+# At the xrdp login screen, pick session type: Xorg
 remote_connect() {
   case "$1" in
     nordic-pc)
-      xfreerdp /u:masm /v:masm-linux.nordicsemi.no \
+      ip=$(getent ahostsv4 masm-linux.nordicsemi.no | awk '{print $1}' | head -1)
+      xfreerdp /u:masm /v:"$ip" \
       /dynamic-resolution +clipboard /network:lan \
       /gfx +gfx-progressive +gfx-thin-client \
       /kbd:0x00000414 \
