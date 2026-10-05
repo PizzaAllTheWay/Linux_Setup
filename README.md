@@ -35,8 +35,10 @@ $ btop
 
 Disk usage analyzer:
 ```
-$ sudo apt install ncdu
-$ ncdu
+$ curl -LSfs https://raw.githubusercontent.com/Byron/dua-cli/master/ci/install.sh | \
+    sh -s -- --git Byron/dua-cli --target x86_64-unknown-linux-musl --crate dua
+$ sudo mv ~/.cargo/bin/dua /usr/local/bin/
+$ dua i
 ```
 
 Graphical directory structure listing:
