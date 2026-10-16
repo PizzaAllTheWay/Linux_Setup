@@ -74,17 +74,19 @@ ssh() {
 # On THIS machine (client): sudo apt install freerdp2-x11
 # Then run: remote_connect nordic-pc
 # At the xrdp login screen, pick session type: Xorg
+# The screen will be very small so when in the session press CTRL+ALT+ENTER to enlarge the screen.
 remote_connect() {
   case "$1" in
     nordic-pc)
       ip=$(getent ahostsv4 masm-linux.nordicsemi.no | awk '{print $1}' | head -1)
       xfreerdp /u:masm /v:"$ip" \
-        /f +clipboard \
-        /network:lan +async-update +async-input \
-        /gfx +gfx-progressive +gfx-thin-client \
-        /gdi:hw /kbd:0x00000414 \
-        /compression-level:0 /bpp:16 /audio-mode:0 \
-        -wallpaper -themes -menu-anims -fonts
+        /size:1024x576 /smart-sizing +clipboard \
+        /network:modem -gfx +bitmap-cache +offscreen-cache +glyph-cache \
+        /relax-order-checks \
+        +compression /compression-level:2 /bpp:16 \
+        +async-update +async-input \
+        /kbd:0x00000414 /audio-mode:2 /cert:ignore \
+        -aero -wallpaper -themes -menu-anims -fonts -decorations
       ;;
     *)
       echo "Usage: remote_connect nordic-pc"
